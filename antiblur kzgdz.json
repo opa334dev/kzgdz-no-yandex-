@@ -1,0 +1,74 @@
+// ==UserScript==
+// @name         kzgdz noyandex
+// @namespace    https://kzgdz.com/
+// @version      0.6
+// @description  remove popup of yandex browser need
+// @author       hater
+// @match        *://*/*
+// @grant        none
+// ==/UserScript==
+function removeYabrowserPopup() {
+  const popup = document.querySelector('.yabrowser-popup');
+  if (popup) {
+    popup.remove();
+  }
+}
+
+function fixImageBlur() {
+  const images = document.querySelectorAll('img.task-img');
+  images.forEach(img => {
+    const style = img.style.filter;
+    if (style.includes('blur') || style.includes('brightness')) {
+      img.style.filter = style
+        .replace(/blur\([^)]+\)/, 'blur(0px)')
+        .replace(/brightness\([^)]+\)/, 'brightness(1.0)');
+    }
+  });
+}
+
+function applyFixes() {
+  removeYabrowserPopup();
+  fixImageBlur();
+}
+
+applyFixes();
+
+const observer = new MutationObserver((mutations) => {
+  mutations.forEach((mutation) => {
+    if (mutation.addedNodes && mutation.addedNodes.length > 0) {
+      applyFixes();
+    }
+  });
+});
+
+observer.observe(document.body, {
+  childList: true,
+  subtree: true
+});
+
+function removeAds() {
+  const adSelectors = [
+    'div[id^="ads_"]',
+    'div[id^="google_ads_"]',
+    'ins.adsbygoogle',
+    'div.adsbygoogle',
+    'div[class*="ads-block"]',
+    'div[class*="banner"]',
+    'div.x5efa1ddc',
+    'div[id^="ya_partner_"]',
+    'div[class*="adLabel"]',
+    'div[data-test="AdKebabAndLabel--adLabelContent"]',
+    'div[data-close][data-new-adtune]'
+  ];
+
+  adSelectors.forEach(selector => {
+    const ads = document.querySelectorAll(selector);
+    ads.forEach(ad => {
+      ad.remove();
+    });
+  });
+}
+
+ removeAds();
+
+setInterval(removeAds, 3000);
